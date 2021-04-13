@@ -1,0 +1,35 @@
+
+
+https://github.com/bmonikraj/sharkradar/wiki
+pip install sharkradar
+sharkradar --addr localhost --port 16461 --algorithm wpmc
+
+http://localhost:16461/dashboard/
+http://localhost:16461/discovery/i/<service-name>
+
+
+curl -X POST -H "Content-Type: application/json" -d '{"Action": "Insert", "Data": 551}' http://localhost:8080
+
+curl http://localhost:8080/GET_SINGLE
+curl http://localhost:8080/GET_ALL
+curl http://localhost:8080/GET_INSERT_RANDOM
+
+
+podman login docker.io
+
+podman build --tag docker.io/kbulix/apigateway:v1 .
+podman build --tag docker.io/kbulix/dbget:v1 -f .
+podman build --tag docker.io/kbulix/dbpost:v1 -f .
+podman build --tag docker.io/kbulix/sharkradar:v1 sharkradar/.
+
+
+podman network create --driver=bridge --subnet=10.0.0.0/16 --ip-range=10.0.0.0/24 --gateway=10.0.0.255 py-api-network
+
+podman run -p 16461:16461 -d --ip 10.0.0.2  --network=py-api-network sharkradar:v1
+podman run -p 32001:32001 -d --ip 10.0.0.11 --network=py-api-network dbget:v1
+podman run -p 32002:32002 -d --ip 10.0.0.12 --network=py-api-network dbpost:v1
+podman run -p 8080:8080   -d --ip 10.0.0.1  --network=py-api-network apigateway:v1
+
+
+
+podman container inspect  -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <containerID>
