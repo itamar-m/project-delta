@@ -39,17 +39,6 @@ class APIServer(BaseHTTPRequestHandler):
         DB2ConnectionHandler.db_close_connection(connection, logging)
 
 
-def db_create_connection():
-    logging.info('Creating connection DB2 on IBM Cloud.')
-    return ibm_db.connect("DATABASE=BLUDB;HOSTNAME=dashdb-txn-sbox-yp-dal09-04.services.dal.bluemix.net;PORT=50000;"
-                          "PROTOCOL=TCPIP;UID=pnc70984;PWD=dw4^jg1sb8nxdk4h;;", "", "")
-
-
-def db_close_connection(conn):
-    ibm_db.close(conn)
-    logging.info('Closing connection DB2 on IBM Cloud.')
-
-
 def get_single(conn):
     sql = "SELECT * FROM PNC70984.ITA_TABLE"
     statement = ibm_db.prepare(conn, sql)
