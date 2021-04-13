@@ -1,0 +1,54 @@
+#
+# https://podman.io/releases/2021/02/11/podman-release-v3.0.0.html
+#
+# docker-compose is support only from podman 3.0 release.
+#
+# not able to test this as I can install the newer podman version (compliance policy)
+#
+version: "3.9"
+services:
+  web:
+    image: "docker.io/kbulix/apigateway:v1"
+    ports:
+      - 8080:8080
+    networks:
+      private-docker-network:
+        ipv4_address: 10.0.0.1
+    depends_on:
+      - backend-get
+      - backend-post
+  backend-get:
+    image: "docker.io/kbulix/dbget:v1"
+    ports:
+      - 32001:32001
+    networks:
+      private-docker-network:
+        ipv4_address: 10.0.0.11
+    depends_on:
+      - service-registry
+  backend-post:
+    image: "docker.io/kbulix/dbpost:v1"
+    ports:
+      - 32002:32002
+    networks:
+      private-docker-network:
+        ipv4_address: 10.0.0.12
+    depends_on:
+      - service-registry
+  service-registry:
+    image: "docker.io/kbulix/sharkradar:v1"
+    ports:
+      - 16461:16461
+    networks:
+      private-docker-network:
+        ipv4_address: 10.0.0.2
+networks:
+  private-docker-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.0.0/16
+          gateway: 10.0.0.255
+volumes:
+  data-volume: {}
